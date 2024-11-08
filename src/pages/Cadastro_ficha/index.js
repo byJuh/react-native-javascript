@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput } from 'reac
 import { useNavigation } from '@react-navigation/native';
 import { inserindoDadosFicha, obterIdUsuario } from '../../database/database';
 import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Cadastro_endereco({ route }) {
 
@@ -16,7 +17,7 @@ export default function Cadastro_endereco({ route }) {
   const [doencaCronica, setDoencaCronica] = useState("");
   const [doador, setDoador] = useState("");
   const [gravida, setGravida] = useState("");
-  const [tempo, setTempo] = useState(0);
+  const [tempo, setTempo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const onChangeTipoHandler = (tipo) => setTipo(tipo);
@@ -40,10 +41,24 @@ export default function Cadastro_endereco({ route }) {
       }
     }
 
+    if(genero == 'feminino' && gravida == 'sim'){
+      if(!tempo.trim()){
+        alert("Preencha todos os espaços!!");
+        return;
+      }
+    }
+
     setIsLoading(true);
 
     try {
       console.log("Enviando dados para o servidor...");
+
+      await AsyncStorage.setItem('tipoSanguineo', tipoSanguineo);
+      await AsyncStorage.setItem('doador', doador);
+      await AsyncStorage.setItem('doencaCronica', doencaCronica);
+      await AsyncStorage.setItem('gravida', gravida);
+      await AsyncStorage.setItem('tempoGravidez', tempo);
+      await AsyncStorage.setItem('doencas', doencas);
 
       const id_usuario = obterIdUsuario(cpf);
       
@@ -128,7 +143,6 @@ export default function Cadastro_endereco({ route }) {
 
       {(genero.toLowerCase() === "feminino") && (
         <View>
-
           <View style={styles.pickerContainer}>
             <Picker
                 selectedValue={gravida}

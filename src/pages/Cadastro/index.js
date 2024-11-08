@@ -53,6 +53,7 @@ export default function Cadastro({ route }){
         console.log("Enviando dados para o servidor...");
   
         await AsyncStorage.setItem("email", email);
+        await AsyncStorage.setItem('contato', telefone)
   
         if(senha.length < 6 && senha.length > 16){
           alert("senha tem que ter no minino 6 digitos!!");

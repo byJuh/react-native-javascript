@@ -76,7 +76,7 @@ export default function Perfil(){
                 <Text style={styles.texto}> Ficha Médica </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.areaInfos}>
+            <TouchableOpacity style={styles.areaInfos} onPress={() => navigation.navigate('DadosPerfil')}>
                 <FontAwesomeIcon icon={faUser} size={20} style={styles.icon}/>
                 <Text style={styles.texto}> Informações Pessoais </Text>
             </TouchableOpacity>

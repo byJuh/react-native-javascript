@@ -9,6 +9,7 @@ import CadastroEndereco from '../pages/Cadastro_endereco';
 import CadastroFicha from '../pages/Cadastro_ficha';
 import Tabs from '../Tabs'; // Importando o componente Tabs para a navegação de abas
 import Receituario from '../pages/Receituario';
+import DadosPerfil from '../pages/DadoPerfil';
 
 const Stack = createNativeStackNavigator();
 
@@ -38,6 +39,11 @@ export default function Rotas() {
             <Stack.Screen
                 name='Cadastro' 
                 component={Cadastro} 
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name='DadosPerfil' 
+                component={DadosPerfil} 
                 options={{ headerShown: false }}
             />
             <Stack.Screen
