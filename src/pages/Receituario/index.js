@@ -7,6 +7,7 @@ import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Permissions from 'expo-permissions';
 
 export default function Receituario() {
     const [pdfList, setPdfList] = useState([]);
@@ -22,6 +23,13 @@ export default function Receituario() {
         };
         loadPdfList();
     }, []);
+
+    const requestPermissions = async () => {
+        const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
+        if (status !== 'granted') {
+            alert('Permission to access media library is required!');
+        }
+    };
 
     const _pickDocument = async () => {
         try {
@@ -83,7 +91,11 @@ export default function Receituario() {
 
             <Modal visible={modalVisible} animationType="slide" onRequestClose={() => setModalVisible(false)}>
                 <View style={{ flex: 1 }}>
-                    <WebView source={{ uri: selectedPdf }} style={{ flex: 1 }} />
+                    <WebView
+                        originWhitelist={['*']}
+                        source={{ uri: `file://${selectedPdf}` }} // Corrigido o uso da URL
+                        style={{ flex: 1 }}
+                    />
                     <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
                         <Text style={{ color: 'white' }}>Fechar</Text>
                     </TouchableOpacity>

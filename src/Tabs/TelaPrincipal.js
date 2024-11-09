@@ -9,6 +9,7 @@ import { Modal, FlatList } from 'react-native';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 let currentDate = moment().format('YYYY-MM-DD');
 let currentDateCursive = moment().locale('pt-br').format('DD [de] MMMM [de] YYYY');
@@ -24,7 +25,18 @@ export default function TelaPrincipal(){
     const [inputText, setInputText] = useState('');
     const [pdfList, setPdfList] = useState([]);
 
-    
+    useFocusEffect(
+        React.useCallback(() => {
+            // Atualiza a lista de PDFs sempre que a tela for exibida
+            const fetchPdfList = async () => {
+                const storedPdfList = await AsyncStorage.getItem('pdfList');
+                if (storedPdfList) {
+                    setPdfList(JSON.parse(storedPdfList));
+                }
+            };
+            fetchPdfList();
+        }, [])
+    );
 
     const openModal = (date) => {
         setIsModalVisible(true);
@@ -51,10 +63,7 @@ export default function TelaPrincipal(){
 
     const receituario = async () => {
         navigation.navigate('Receituario');
-        const pdfListString = await AsyncStorage.getItem('pdfList');
-        if (pdfListString) {
-            setPdfList(JSON.parse(pdfListString)); // Transforma em objeto
-        }
+        
     }
 
     return(
@@ -174,15 +183,11 @@ export default function TelaPrincipal(){
                     </TouchableOpacity>
                     <View style={styles.secondCard}>
                         <View style={{ alignItems: 'center'}}>
-                            <FlatList
-                                data={pdfList}
-                                keyExtractor={(item, index) => index.toString()}
-                                renderItem={({ item }) => (
-                                    <TouchableOpacity onPress={() => _openPdf(item.uri)}>
-                                        <Text style={styles.pdfItem}>{item.name}</Text>
-                                    </TouchableOpacity>
-                                )}
-                            />
+                            {pdfList && pdfList.map((item, index) => (
+                                <Text key={index} style={styles.pdfItem}>
+                                    {item.name}
+                                </Text>
+                            ))}
                         </View>
                     </View> 
                 </View>
