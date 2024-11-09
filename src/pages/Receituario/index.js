@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import 'moment/locale/pt-br';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -6,11 +6,22 @@ import { Modal, FlatList } from 'react-native';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { WebView } from 'react-native-webview';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Receituario() {
     const [pdfList, setPdfList] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedPdf, setSelectedPdf] = useState('');
+
+    useEffect(() => {
+        const loadPdfList = async () => {
+            const storedPdfList = await AsyncStorage.getItem('pdfList');
+            if (storedPdfList) {
+                setPdfList(JSON.parse(storedPdfList));
+            }
+        };
+        loadPdfList();
+    }, []);
 
     const _pickDocument = async () => {
         try {
@@ -22,12 +33,10 @@ export default function Receituario() {
                 const fileUri = pdf.uri; // URI do arquivo
                 
                 // Adiciona o arquivo à lista
-                setPdfList((prevList) => [...prevList, {
-                    uri: fileUri,
-                    name: pdf.name,
-                }]);
-
-                console.log(pdfList)
+                const updatedPdfList = [...pdfList, { uri: fileUri, name: pdf.name }];
+                
+                setPdfList(updatedPdfList);
+                await AsyncStorage.setItem('pdfList', JSON.stringify(updatedPdfList));
             } else {
                 Alert.alert('Erro', 'Não foi possível selecionar o arquivo.');
             }
@@ -55,9 +64,6 @@ export default function Receituario() {
                         <TouchableOpacity style={{ width: 50, height: 50, backgroundColor: '#63E6BE', alignItems: 'center', justifyContent: 'center', marginTop: 400, marginLeft: 300}} onPress={_pickDocument}>
                             <FontAwesomeIcon icon={faCirclePlus} size={40} style={{ color: "#FFFFFF" }} />
                         </TouchableOpacity>
-
-                        
-                       
                     </View>
 
                     <View style={{ alignItems: 'center'}}>

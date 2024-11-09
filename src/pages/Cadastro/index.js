@@ -30,6 +30,11 @@ export default function Cadastro({ route }){
   
   const onChangeConfirmarSenhaHandler = (senha) => setConfirmarSenha (senha);
 
+  function validatePhone (phone) {
+    var regex = new RegExp('^((1[1-9])|([2-9][0-9]))((3[0-9]{3}[0-9]{4})|(9[0-9]{3}[0-9]{5}))$'); 
+    return regex.test(phone);
+  }
+
   const onSubmitFormHandler = async () => {
     if (isChecked === false) {
       alert("Para se cadastrar aceite os termos de uso!!");
@@ -38,6 +43,11 @@ export default function Cadastro({ route }){
 
     if(!email.trim() || !telefone.trim() || !senha.trim() || !confirmarSenha.trim()){
       alert("Preencha todos os dados!!");
+      return;
+    }
+
+    if(validatePhone(telefone)){
+      alert("Númeor inválido!!");
       return;
     }
 

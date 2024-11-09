@@ -1,31 +1,109 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import moment from 'moment';
 
-export default async function ProfileScreen()  {
+export default function ProfileScreen()  {
 
     const navigation = useNavigation();
     
     // Variáveis para dados
-    const nomeCompleto = await AsyncStorage.getItem('nome');
-    const dataNascimento = await AsyncStorage.getItem('data');
-    const cpf = await AsyncStorage.getItem('cpf');
-    const rg = await AsyncStorage.getItem('rg');
-    const contato = await AsyncStorage.getItem('contato');
-    const email = await AsyncStorage.getItem('email');
-    const tipoSanguineo = await AsyncStorage.getItem('tipoSanguineo');
-    const doador = await AsyncStorage.getItem('doador');
-    const idade = await AsyncStorage.getItem('idade');
-    const estadoCivil = await AsyncStorage.getItem('estadoCivil');
-    const sexoBiologico = await AsyncStorage.getItem('genero');
+    const[nomeCompleto, setNomeCompleto] = useState('');
+    const[dataNascimento, setDataNascimento] = useState('');
+    const[cpf, setCpf] = useState('');
+    const[rg, setRg] = useState('');
+    const[contato, setContato] = useState('');
+    const[email, setEmail] = useState('');
+    const[tipoSanguineo, setTipoSanguineo] = useState('')
+    const[doador, setDoador] = useState('');
+    const[idade, setIdade] = useState('');
+    const[estadoCivil, setEstadoCivil] = useState('');
+    const[sexoBiologico, setSexoBiologico] = useState('');
+    const[gravidez, setGravidez] = useState('');
+    const[doencas, setDoencas] = useState('');
+    const[doencasCronicas, setDoencasCronicas] = useState('');
+    const[tempoGravidez, setTempoGravidez] = useState('')
+
+    useEffect (() => {
+      const adicionarDados = async () => {
+        try {
+            const nome = await AsyncStorage.getItem('nome') || '';
+            const data = await AsyncStorage.getItem('data') || '';
+            const cpf = await AsyncStorage.getItem('cpf') || '';
+            const rg = await AsyncStorage.getItem('rg') || '';
+            const contato = await AsyncStorage.getItem('contato') || '';
+            const email = await AsyncStorage.getItem('email') || '';
+            const tipoSanguineo = await AsyncStorage.getItem('tipoSanguineo') || '';
+            const doador = await AsyncStorage.getItem('doador') || '';
+            const idade = await AsyncStorage.getItem('idade') || '';
+            const estadoCivil = await AsyncStorage.getItem('estadoCivil') || '';
+            const genero = await AsyncStorage.getItem('genero') || '';
+            const gravidez = await AsyncStorage.getItem('gravida') || '';
+            const doencasCronicas = await AsyncStorage.getItem('doencaCronica') || '';
+    
+            // Setando os estados
+            setNomeCompleto(nome);
+            setDataNascimento(data);
+            setCpf(cpf);
+            setRg(rg);
+            setContato(contato);
+            setEmail(email);
+            setTipoSanguineo(tipoSanguineo);
+            setDoador(doador);
+            setIdade(idade);
+            setEstadoCivil(estadoCivil);
+            setSexoBiologico(genero);
+            setGravidez(gravidez);
+            setDoencasCronicas(doencasCronicas);
+
+            if(gravidez === 'sim'){
+              const tempo = await AsyncStorage.getItem('tempoGravidez');
+              setTempoGravidez(tempo);
+            }
+    
+            if(doencasCronicas === 'sim'){
+              const doenca = await AsyncStorage.getItem('doencas');
+              setDoencas(doenca);
+            }
+          } catch (error) {
+            console.error("Erro ao carregar os dados: ", error);
+          }
+        };
+      adicionarDados();
+    }, []);
 
     const handleBackPress = () => {
-        // Comando para voltar
         navigation.navigate('Tabs', { screen: 'Perfil' });
     };
+
+    function formatCpf(value)
+    {
+      const cpf = value.replace(/\D/g, '');
+      
+      if (cpf.length === 11) {
+        return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/g, "\$1.\$2.\$3-\$4");
+      } 
+      
+      return cpf.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/g, "\$1.\$2.\$3/\$4-\$5");
+    }
+
+    const formatTelefone = (value) => {
+      value = value.replace(/\D/g,'')
+      value = value.replace(/(\d{2})(\d)/,"($1) $2")
+      value = value.replace(/(\d)(\d{4})$/,"$1-$2")
+      return value
+    }
+
+    function formatRg(v0,errChar='?'){
+      const v = v0.toUpperCase().replace(/[^\dX]/g,'');
+      return (v.length==8 || v.length==9)?
+         v.replace(/^(\d{1,2})(\d{3})(\d{3})([\dX])$/,'$1.$2.$3-$4'):
+         (errChar+v0)
+      ;
+    } 
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -49,16 +127,16 @@ export default async function ProfileScreen()  {
             <Text style={styles.detailText}>{nomeCompleto}</Text>
 
             <Text style={styles.detailLabel}>Data de Nascimento</Text>
-            <Text style={styles.detailText}>{dataNascimento}</Text>
+            <Text style={styles.detailText}>{moment(dataNascimento).format('DD/MM/YYYY')}</Text>
 
             <Text style={styles.detailLabel}>CPF Cadastrado</Text>
-            <Text style={styles.detailText}>{cpf}</Text>
+            <Text style={styles.detailText}>{formatCpf(cpf)}</Text>
 
             <Text style={styles.detailLabel}>RG Cadastrado</Text>
-            <Text style={styles.detailText}>{rg}</Text>
+            <Text style={styles.detailText}>{formatRg(rg)}</Text>
 
             <Text style={styles.detailLabel}>Contato</Text>
-            <Text style={styles.detailText}>{contato}</Text>
+            <Text style={styles.detailText}>{formatTelefone(contato)}</Text>
 
             <Text style={styles.detailLabel}>E-mail</Text>
             <Text style={styles.detailText}>{email}</Text>
@@ -68,7 +146,22 @@ export default async function ProfileScreen()  {
 
             <Text style={styles.detailLabel}>Doenças Crônicas</Text>
 
-            
+            {(doencasCronicas.toLowerCase() === "sim") ? (
+                <Text style={styles.detailText}>{doencas}</Text>
+            ) : (
+                <Text style={styles.detailText}> Não apresenta doenças cronicas</Text>
+            )}
+
+            {(sexoBiologico.toLowerCase() === 'feminino') && (
+              <View style={styles.profileDetails}>
+                <Text style={styles.detailLabel}>Grávida</Text>
+                {(gravidez === 'sim') ? (
+                  <Text style={styles.detailText}>{tempoGravidez}</Text>
+                ) : (
+                  <Text style={styles.detailText}> Não está grávida </Text>
+                )}
+              </View>
+            )}
             <Text style={styles.detailLabel}>O usuário é doador?</Text>
             <Text style={styles.detailText}>{doador}</Text>
         </View>
@@ -148,3 +241,4 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
 });
+

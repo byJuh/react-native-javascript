@@ -1,5 +1,5 @@
 import moment from 'moment/moment';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, ScrollView} from 'react-native';
 import 'moment/locale/pt-br';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -8,6 +8,7 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { Modal, FlatList } from 'react-native';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let currentDate = moment().format('YYYY-MM-DD');
 let currentDateCursive = moment().locale('pt-br').format('DD [de] MMMM [de] YYYY');
@@ -21,6 +22,9 @@ export default function TelaPrincipal(){
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isModalNotaVisible, setIsModalNotaVisible] = useState(false);
     const [inputText, setInputText] = useState('');
+    const [pdfList, setPdfList] = useState([]);
+
+    
 
     const openModal = (date) => {
         setIsModalVisible(true);
@@ -44,6 +48,14 @@ export default function TelaPrincipal(){
         }));
         setIsModalVisible(false);
     };
+
+    const receituario = async () => {
+        navigation.navigate('Receituario');
+        const pdfListString = await AsyncStorage.getItem('pdfList');
+        if (pdfListString) {
+            setPdfList(JSON.parse(pdfListString)); // Transforma em objeto
+        }
+    }
 
     return(
         <View style={styles.container}>
@@ -156,12 +168,22 @@ export default function TelaPrincipal(){
                         
                     <TouchableOpacity 
                         style={styles.btnAbrirReceita}
-                        onPress={() => navigation.navigate('Receituario')}
+                        onPress={receituario}
                     >
                         <Text style={styles.textoAbrir}> Abrir </Text>
                     </TouchableOpacity>
                     <View style={styles.secondCard}>
-                    
+                        <View style={{ alignItems: 'center'}}>
+                            <FlatList
+                                data={pdfList}
+                                keyExtractor={(item, index) => index.toString()}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity onPress={() => _openPdf(item.uri)}>
+                                        <Text style={styles.pdfItem}>{item.name}</Text>
+                                    </TouchableOpacity>
+                                )}
+                            />
+                        </View>
                     </View> 
                 </View>
 
@@ -373,6 +395,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignSelf: 'center',
         margin: 10
+    },
+    pdfItem: {
+        color: '#007BFF',
+        fontSize: 20,
     },
 })
 
