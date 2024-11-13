@@ -1,25 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import 'moment/locale/pt-br';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { Modal, FlatList } from 'react-native';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as FileSystem from 'expo-file-system';
 import * as Permissions from 'expo-permissions';
+import PDF from 'react-native-pdf';
+import * as FileSystem from 'expo-file-system';
 
 export default function Receituario() {
     const [pdfList, setPdfList] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedPdf, setSelectedPdf] = useState('');
-
-    const requestStoragePermission = async () => {
-        const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
-        if (status !== 'granted') {
-            Alert.alert('Permissão necessária', 'É necessário permitir o acesso ao armazenamento para visualizar o PDF.');
-        }
-    };
 
     useEffect(() => {
         const loadPdfList = async () => {
@@ -29,61 +24,42 @@ export default function Receituario() {
             }
         };
         loadPdfList();
-        requestStoragePermission();
     }, []);
 
     const _pickDocument = async () => {
         try {
             const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf' });
             console.log('Resultado do DocumentPicker:', result);
-    
-            if (result.type !== 'cancel') {
-                const pdfUri = result.uri; // URI do arquivo
-                console.log('URI do PDF selecionado:', pdfUri); // Verifica o URI do PDF
-    
+
+            if (!result.canceled) { // Verifica se a seleção foi cancelada
+                const pdf = result.assets[0]; // Acessa o primeiro arquivo selecionado
+                const fileUri = pdf.uri; // URI do arquivo
+                
                 // Adiciona o arquivo à lista
-                const updatedPdfList = [...pdfList, { uri: pdfUri, name: result.name }];
+                const updatedPdfList = [...pdfList, { uri: fileUri, name: pdf.name }];
+                
                 setPdfList(updatedPdfList);
                 await AsyncStorage.setItem('pdfList', JSON.stringify(updatedPdfList));
             } else {
                 Alert.alert('Erro', 'Não foi possível selecionar o arquivo.');
             }
         } catch (err) {
-            console.error('Erro ao selecionar o arquivo:', err);
+            console.error('Erro ao selecionar o arquivo:', err); // Log para capturar qualquer erro
         }
     };
-    
 
     const _openPdf = async (pdfUri) => {
         try {
+            // Copia o PDF para o diretório de cache acessível ao WebView
             const cacheUri = `${FileSystem.cacheDirectory}${pdfUri.split('/').pop()}`;
             await FileSystem.copyAsync({ from: pdfUri, to: cacheUri });
-            console.log('Arquivo copiado para o cache:', cacheUri);
-    
-            const base64 = await FileSystem.readAsStringAsync(cacheUri, {
-                encoding: FileSystem.EncodingType.Base64,
-            });
-            
-            console.log('URI do PDF original:', pdfUri);
-            console.log('URI do PDF no cache:', cacheUri);
-            console.log('Conteúdo base64:', base64 ? base64.slice(0, 100) : 'vazio'); // Mostra os primeiros 100 caracteres
-    
-            if (base64) {
-                const pdfBase64Uri = `data:application/pdf;base64,${base64}`;
-                console.log('URI base64 do PDF:', pdfBase64Uri); // Verificação final
-    
-                setSelectedPdf(pdfBase64Uri);
-                setModalVisible(true);
-            } else {
-                console.error('Erro: Conteúdo base64 do PDF está vazio');
-            }
+            setSelectedPdf(cacheUri);
+            setModalVisible(true);
         } catch (error) {
-            console.error('Erro ao ler o PDF:', error);
+            console.error('Erro ao carregar o PDF:', error);
             Alert.alert('Erro', 'Não foi possível abrir o arquivo PDF.');
         }
     };
-    
-    
 
     return (
         <View style={styles.container}>
@@ -96,15 +72,12 @@ export default function Receituario() {
                         <Text style={styles.texto}>Receituário</Text>
                     </View>
                     <View style={styles.secondCard}>
-                        <TouchableOpacity 
-                            style={{ width: 50, height: 50, backgroundColor: '#63E6BE', alignItems: 'center', justifyContent: 'center', marginTop: 400, marginLeft: 300}} 
-                            onPress={_pickDocument}
-                        >
+                        <TouchableOpacity style={{ width: 50, height: 50, backgroundColor: '#63E6BE', alignItems: 'center', justifyContent: 'center', marginTop: 400, marginLeft: 300}} onPress={_pickDocument}>
                             <FontAwesomeIcon icon={faCirclePlus} size={40} style={{ color: "#FFFFFF" }} />
                         </TouchableOpacity>
                     </View>
 
-                    <View style={{ alignItems: 'center' }}>
+                    <View style={{ alignItems: 'center'}}>
                         <FlatList
                             data={pdfList}
                             keyExtractor={(item, index) => index.toString()}
@@ -115,6 +88,7 @@ export default function Receituario() {
                             )}
                         />
                     </View>
+                    
                 </View>
             </View>
 
@@ -122,7 +96,7 @@ export default function Receituario() {
                 <View style={{ flex: 1 }}>
                     <WebView
                         originWhitelist={['*']}
-                        source={{ uri: selectedPdf }} // Use o URI base64 aqui
+                        source={{ uri: selectedPdf }}
                         style={{ flex: 1 }}
                     />
                     <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
