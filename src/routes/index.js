@@ -10,6 +10,7 @@ import CadastroFicha from '../pages/Cadastro_ficha';
 import Tabs from '../Tabs'; // Importando o componente Tabs para a navegação de abas
 import Receituario from '../pages/Receituario';
 import DadosPerfil from '../pages/DadoPerfil';
+import TermoPrivacidade from '../pages/TermoPrivacidade'
 
 const Stack = createNativeStackNavigator();
 
@@ -55,6 +56,11 @@ export default function Rotas() {
                 name='CadastroFicha' 
                 component={CadastroFicha} 
                 options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name='TermoPrivacidade' 
+                component={TermoPrivacidade} 
+                options={{ headerShown: false }} 
             />
             <Stack.Screen
                 name='Tabs' 

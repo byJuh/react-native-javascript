@@ -6,8 +6,11 @@ import { faUser } from '@fortawesome/free-regular-svg-icons';
 import { faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { faUniversalAccess } from '@fortawesome/free-solid-svg-icons';
 import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Config(){
+
+    const navigation = useNavigation();
 
     return(
         <View style={styles.container}>
@@ -16,7 +19,7 @@ export default function Config(){
                 <Text style={styles.textoPrincipal}> Configurações </Text>
             </View>
 
-            <TouchableOpacity style={styles.areaFicha}>
+            <TouchableOpacity style={styles.areaFicha} onPress={() => navigation.navigate('TermoPrivacidade')}>
                 <FontAwesomeIcon icon={faGlobe} size={20} style={styles.icon}/>
                 <Text style={styles.texto}> Privacidade e Segurança </Text>
             </TouchableOpacity>

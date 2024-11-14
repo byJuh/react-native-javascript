@@ -7,8 +7,6 @@ import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Permissions from 'expo-permissions';
-import PDF from 'react-native-pdf';
 import * as FileSystem from 'expo-file-system';
 
 export default function Receituario() {
