@@ -10,10 +10,7 @@ import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
-<<<<<<< HEAD
-=======
 import { Storage } from "expo-sqlite/kv-store";
->>>>>>> 23d1e68 (arrumandoBD)
 
 export default function Perfil(){
 
@@ -27,18 +24,6 @@ export default function Perfil(){
     useEffect(() => {
         const getDados = async () =>{
             try{
-<<<<<<< HEAD
-                const nomeCompleto = await AsyncStorage.getItem("nome");
-                setNome(nomeCompleto);
-
-                const dataDeNascimento = await AsyncStorage.getItem("data");
-                setData(dataDeNascimento);
-
-                const genero = await AsyncStorage.getItem("genero");
-                setGenero(genero);
-
-                const idade = await AsyncStorage.getItem("idade");
-=======
                 const nomeCompleto = await Storage.getItem("nome");
                 setNome(nomeCompleto);
 
@@ -49,7 +34,6 @@ export default function Perfil(){
                 setGenero(genero);
 
                 const idade = await Storage.getItem("idade");
->>>>>>> 23d1e68 (arrumandoBD)
                 setIdade(idade);
             } catch(error){
                 console.log("Nao foi possivel pegar os dados!!");
@@ -62,11 +46,7 @@ export default function Perfil(){
 
     const logOut = async () => {
         try{
-<<<<<<< HEAD
-            await AsyncStorage.removeItem('authToken');
-=======
             await Storage.removeItem('authToken');
->>>>>>> 23d1e68 (arrumandoBD)
                 navigation.reset({
                     routes: [{ name: 'TelaInicial' }],
                 });

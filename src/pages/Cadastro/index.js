@@ -4,20 +4,15 @@ import Checkbox from 'expo-checkbox';
 import { useState } from 'react';
 import { inserindoDadosCadastro } from '../../database/database';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const validator = require('validator')
 
 export default function Cadastro({ route }){
 
   const navigation = useNavigation();
-
+ 
   const [isChecked, setChecked] = useState(false);
-<<<<<<< HEAD
-  const { cpf } = route.params;
-=======
   const { cpf, id_usuario} = route.params;
->>>>>>> 23d1e68 (arrumandoBD)
 
   const [telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
@@ -66,22 +61,12 @@ export default function Cadastro({ route }){
       try {
         console.log("Enviando dados para o servidor...");
   
-<<<<<<< HEAD
-        await AsyncStorage.setItem("email", email);
-        await AsyncStorage.setItem('contato', telefone)
-  
-=======
->>>>>>> 23d1e68 (arrumandoBD)
         if(senha.length < 6 && senha.length > 16){
           alert("senha tem que ter no minino 6 digitos!!");
           return;
         }
         
-<<<<<<< HEAD
-        inserindoDadosCadastro(cpf, email, senha, telefone);
-=======
         await inserindoDadosCadastro(cpf, email, senha, telefone);
->>>>>>> 23d1e68 (arrumandoBD)
         
         console.log("Cadastro realizado com sucesso!");
         console.log(cpf, email, senha, telefone);
@@ -93,11 +78,7 @@ export default function Cadastro({ route }){
         setSenha("");
         setConfirmarSenha("");
         
-<<<<<<< HEAD
-        navigation.navigate('Login');
-=======
         navigation.navigate('Login', {cpf, id_usuario});
->>>>>>> 23d1e68 (arrumandoBD)
   
       } catch (error) {
         console.error("Erro ao cadastrar:", error);
