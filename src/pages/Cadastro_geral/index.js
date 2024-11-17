@@ -81,20 +81,8 @@ export default function Cadastro_geral() {
             idade--; // Diminuir 1 da idade
         }
         
-<<<<<<< HEAD
-        await AsyncStorage.setItem("nome", nomeCompleto);
-        await AsyncStorage.setItem("data", birthDate);
-        await AsyncStorage.setItem("genero", genero);
-        await AsyncStorage.setItem("idade", String(idade));
-        await AsyncStorage.setItem("cpf", cpf);
-        await AsyncStorage.setItem("estadoCivil", estadoCivil);
-        await AsyncStorage.setItem("rg", rg);
-
-        inserindoDadosGeral(nomeCompleto, birthDate, genero, estadoCivil, cpf, rg, idade);
-=======
        
         await inserindoDadosGeral(nomeCompleto, birthDate, genero, estadoCivil, cpf, rg, idade);
->>>>>>> 23d1e68 (arrumandoBD)
         
         console.log("Cadastro realizado com sucesso!");
         console.log(nomeCompleto, birthDate, genero, estadoCivil, cpf, rg);

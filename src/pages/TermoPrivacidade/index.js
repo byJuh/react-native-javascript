@@ -36,11 +36,7 @@ export default function PrivacyScreen() {
         </View>
 
         <View style={styles.optionsContainer}>
-<<<<<<< HEAD
-            <TouchableOpacity style={styles.option}>
-=======
             <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('AlterarSenha')}>
->>>>>>> 23d1e68 (arrumandoBD)
             <View>
                 <Text style={styles.optionTitle}>Senha</Text>
                 <Text style={styles.optionText}>Clique aqui para redefinir sua senha</Text>
