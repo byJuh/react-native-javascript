@@ -6,10 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-<<<<<<< HEAD
-=======
     "newArchEnabled": true,
->>>>>>> 23d1e68 (arrumandoBD)
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -21,12 +18,8 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-<<<<<<< HEAD
-        "backgroundColor": "#ffffff"
-=======
         "backgroundColor": "#ffffff",
         "newArchEnabled": true 
->>>>>>> 23d1e68 (arrumandoBD)
       },
       "package": "com.anonymous.meuapp"
     },

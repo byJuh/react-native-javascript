@@ -8,6 +8,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
+import { Storage } from "expo-sqlite/kv-store";
 
 export default function Receituario() {
     const [pdfList, setPdfList] = useState([]);
@@ -16,9 +17,17 @@ export default function Receituario() {
 
     useEffect(() => {
         const loadPdfList = async () => {
-            const storedPdfList = await AsyncStorage.getItem('pdfList');
+            const email = await Storage.getItem('email'); 
+
+            const storedPdfList = await AsyncStorage.getItem(`pdfList-${email}`);
+            
             if (storedPdfList) {
-                setPdfList(JSON.parse(storedPdfList));
+
+                const pdfList = JSON.parse(storedPdfList);
+                setPdfList(pdfList);
+
+            }else {
+                setPdfList([]); 
             }
         };
         loadPdfList();
@@ -33,13 +42,12 @@ export default function Receituario() {
                 const pdf = result.assets[0]; // Acessa o primeiro arquivo selecionado
                 const fileUri = pdf.uri; // URI do arquivo
                 
+                const email = await Storage.getItem('email');
                 // Adiciona o arquivo à lista
                 const updatedPdfList = [...pdfList, { uri: fileUri, name: pdf.name }];
                 
                 setPdfList(updatedPdfList);
-                await AsyncStorage.setItem('pdfList', JSON.stringify(updatedPdfList));
-            } else {
-                Alert.alert('Erro', 'Não foi possível selecionar o arquivo.');
+                await AsyncStorage.setItem(`pdfList-${email}`, JSON.stringify(updatedPdfList));
             }
         } catch (err) {
             console.error('Erro ao selecionar o arquivo:', err); // Log para capturar qualquer erro

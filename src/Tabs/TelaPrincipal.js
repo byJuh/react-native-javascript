@@ -10,6 +10,7 @@ import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { Storage } from "expo-sqlite/kv-store";
 
 let currentDate = moment().format('YYYY-MM-DD');
 let currentDateCursive = moment().locale('pt-br').format('DD [de] MMMM [de] YYYY');
@@ -27,16 +28,39 @@ export default function TelaPrincipal(){
 
     useFocusEffect(
         React.useCallback(() => {
+            const fetchNotes = async () => {
+                const email = await Storage.getItem('email'); 
+
+                setNotes(await loadNotes(email));
+              };
             // Atualiza a lista de PDFs sempre que a tela for exibida
             const fetchPdfList = async () => {
-                const storedPdfList = await AsyncStorage.getItem('pdfList');
+                const email = await Storage.getItem('email'); 
+                
+                const storedPdfList = await AsyncStorage.getItem(`pdfList-${email}`);
                 if (storedPdfList) {
                     setPdfList(JSON.parse(storedPdfList));
                 }
             };
+
+            fetchNotes();
             fetchPdfList();
         }, [])
     );
+
+    const loadNotes = async (email) => {
+        try {
+          
+          const storedNotes = await AsyncStorage.getItem(`user_notes_${email}`);
+      
+          return storedNotes ? JSON.parse(storedNotes) : {};
+
+        } catch (error) {
+
+          console.error('Erro ao carregar notas:', error);
+          return {}; 
+        }
+      };
 
     const openModal = (date) => {
         setIsModalVisible(true);
@@ -53,11 +77,22 @@ export default function TelaPrincipal(){
         setInputText('');
     }
     
-    const saveNote = () => {
-        setNotes((prevNotes) => ({
-            ...prevNotes,
-            [selectedDate]: [...(prevNotes[selectedDate] || []), inputText],
-        }));
+    const saveNote = async () => {
+        const email = await Storage.getItem('email');
+
+        const storedNotes = await AsyncStorage.getItem(`user_notes_${email}`);
+        const note = storedNotes ? JSON.parse(storedNotes) : {};
+        
+        if (!note[selectedDate]) {
+            note[selectedDate] = [];
+        }
+
+        note[selectedDate].push(inputText);
+
+        await AsyncStorage.setItem(`user_notes_${email}`, JSON.stringify(note));
+        
+        setNotes(note);
+
         setIsModalVisible(false);
     };
 
@@ -139,7 +174,7 @@ export default function TelaPrincipal(){
                                     <Text style={styles.modalTitle}> Notas em {moment(selectedDate).format('DD/MM/YYYY')}</Text>
 
                                     <FlatList
-                                        data={notes[selectedDate]} // Array de notas para a data selecionada
+                                        data={notes[selectedDate]} // Agora é um array de notas
                                         keyExtractor={(item, index) => index.toString()}
                                         renderItem={({ item }) => (
                                             <Text style={styles.noteItem}>{item}</Text>
@@ -191,19 +226,6 @@ export default function TelaPrincipal(){
                         </View>
                     </View> 
                 </View>
-
-                <View style={styles.firstCard} >
-                        
-                    <View style={styles.areaFarmacias}>
-                        <FontAwesomeIcon icon={faMap} size={30} style={styles.icon}/>
-                        <Text style={styles.textoFarmacias}> Farmácias Próximas </Text>   
-                    </View>
-                    
-
-                    <View style={styles.secondCard}>
-                        
-                    </View> 
-                  </View>
             </ScrollView>
         </View>
     );

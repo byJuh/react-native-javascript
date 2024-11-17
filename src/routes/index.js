@@ -12,6 +12,7 @@ import Receituario from '../pages/Receituario';
 import DadosPerfil from '../pages/DadoPerfil';
 import TermoPrivacidade from '../pages/TermoPrivacidade'
 import AlterarSenha from '../pages/AlterarDados/alterarSenha'
+import AlterarEmail from '../pages/AlterarDados/alterarEmail'
 
 const Stack = createNativeStackNavigator();
 
@@ -66,6 +67,11 @@ export default function Rotas() {
             <Stack.Screen
                 name='AlterarSenha' 
                 component={AlterarSenha} 
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name='AlterarEmail' 
+                component={AlterarEmail} 
                 options={{ headerShown: false }}
             />
             <Stack.Screen

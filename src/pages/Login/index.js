@@ -1,14 +1,8 @@
 import React, {useState} from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-<<<<<<< HEAD
-import { login, redefinirSenha } from '../../database/database';
-import { Modal } from 'react-native';
-=======
 import { login, obterDadosDoUsuario, obterIdUsuario, redefinirSenha, obterCpf } from '../../database/database';
 import { Modal } from 'react-native';
-import { Storage } from "expo-sqlite/kv-store";
->>>>>>> 23d1e68 (arrumandoBD)
 
 const validator = require('validator')
 
@@ -53,11 +47,6 @@ export default function Login(){
           console.log("Tentando redefinir a senha para:", email, novaSenha);
   
           
-<<<<<<< HEAD
-          redefinirSenha(email, novaSenha);
-          alert("Senha redefinida com sucesso!");
-
-=======
           const result = await redefinirSenha(email, novaSenha);
 
           if(result){
@@ -65,7 +54,6 @@ export default function Login(){
           }else{
             alert("Erro ao redefinir. Tente mais tarde!");
           }
->>>>>>> 23d1e68 (arrumandoBD)
           
         } catch (error) {
           console.error("Erro ao redefinir senha:", error.message);
@@ -84,17 +72,6 @@ export default function Login(){
 
     if(validator.isEmail(email)){
       try {
-<<<<<<< HEAD
-          login(email, senha);
-
-          setEmail("");
-          setSenha("");
-
-          navigation.navigate('Tabs', { screen: 'Principal' });
-      } catch (error) {
-          console.error("Erro ao Logar:", error.message);
-          alert("Erro ao se Logar. Por favor, tente novamente. Erro: " + error.message);
-=======
           const entrar = await login(email, senha);
 
           console.log(entrar);
@@ -125,7 +102,6 @@ export default function Login(){
           
       } catch (error) {
           alert("Senha ou email incorretos!!");
->>>>>>> 23d1e68 (arrumandoBD)
       }
 
     }else{

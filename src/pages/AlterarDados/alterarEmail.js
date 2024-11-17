@@ -1,17 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Storage } from "expo-sqlite/kv-store";
-import { redefinirSenha, obterSenha } from '../../database/database';
+import { obterSenha, redefinirEmail } from '../../database/database';
 
-export default function AlterarSenha({ navigation }) {
-  const textoSeguranca = `Você está prestes a alterar seus dados de login. Verifique com atenção antes de confirmar para garantir que todas as informações estejam corretas. Alterações incorretas podem afetar seu acesso e funcionalidades do aplicativo.`
-  
+export default function AlterarEmail({ navigation }) {
+  const textoSeguranca = `Você está prestes a alterar seus dados de login. Verifique com atenção antes de confirmar para garantir que todas as informações estejam corretas. Alterações incorretas podem afetar seu acesso e funcionalidades do aplicativo.`;
+
   const [email, setEmail] = useState('');
-  const [senhaAtual, setsenhaAtual] = useState('');
-  const [novaSenha, setnovaSenha] = useState('');
-  const [confirmacaoSenha, setconfirmacaoSenha] = useState('');
+  const [emailAtual, setEmailAtual] = useState('');
+  const [senhaAtual, setSenhaAtual] = useState('');
+  const [novoEmail, setNovoEmail] = useState('');
+  const [confirmacaoEmail, setConfirmacaoEmail] = useState('');
 
   useEffect (() => {
     const adicionarEmail = async () => {
@@ -30,67 +31,82 @@ export default function AlterarSenha({ navigation }) {
       adicionarEmail();
     }, []);
 
-  //Voltar Termo Privacidade (Pronto)
+  // Voltar Termo Privacidade (Pronto)
   const handleBackPress = () => {
     navigation.navigate('Tabs', { screen: 'TermoPrivacidade' });
   };
 
-  const handleSalvarSenha = async () => {
-    try{
-        console.log(email);
+  // Salvar Novo E-mail (Incompleto)
+  const handleSalvarEmail = async () => {
+    
+    if(!emailAtual.trim() || !novoEmail.trim() || !confirmacaoEmail.trim()){
+        alert('Preencha todos os campos!!');
+        return;
+    }
 
-        const senha = await obterSenha(email);
+    if(email !== emailAtual){
+        alert('Email atual incorreto!!');
+        return;
+    }
 
-        console.log(senha);
+    const senha = await obterSenha(email);
 
-        if (!senha) {
-          alert('Senha não encontrada!');
-          return;
-        }
-    
-        if(!senhaAtual.trim() || !novaSenha.trim() || !confirmacaoSenha.trim()){
-            alert('Preencha todos os campos!!');
-            return;
-        }
-    
-        if(senha !== senhaAtual){
-            alert('Senha atual incorreta!!');
-            return;
-        }
-    
-        if(novaSenha !== confirmacaoSenha){
-            alert('Senhas não correndem!!');
-            return;
-        }
-    
-        if(senhaAtual === novaSenha){
-            alert('Senha atual é a mesma que a nova senha!!');
-            navigation.navigate('Tabs', { screen: 'TermoPrivacidade' });
-        }else{
-            const result = await redefinirSenha(email, novaSenha);
-    
-            if(result){
-                alert("Nova senha salva!");
-                navigation.navigate('Tabs', { screen: 'TermoPrivacidade' });
-            }else{
-                alert('Erro ao redefinir senha!!');
-            }
-        }
-    
-        
-    }catch(error){
-        alert('Ocorreu um erro inesperado. Tente novamente.');
+    if (!senha) {
+        alert('Senha não encontrada!');
+        return;
     }
     
-    
+
+    if(senha !== senhaAtual){
+        alert('Senha atual incorreta!!');
+        return;
+    }
+
+    if(novoEmail !== confirmacaoEmail){
+        alert('Emails não são correspondentes!!');
+        return;
+    }
+
+    if(emailAtual === novoEmail){
+        alert('Email atual é a mesma que o novo email!!');
+        navigation.navigate('Tabs', { screen: 'TermoPrivacidade' });
+    }else{
+       
+        const result = await redefinirEmail(email, novoEmail, senha);
+        
+        if(result){
+            await Storage.setItem('email', novoEmail);
+
+            showAlert();
+            navigation.navigate('Tabs', { screen: 'TermoPrivacidade' });
+        }else{
+            alert('Não foi possível alterar o Email!!');
+        }
+        
+    }
     
   };
 
-  //Limpar Campos (Pronto)
+  // Limpar Campos (Pronto)
   const handleLimparCampos = () => {
-    setsenhaAtual('');
-    setnovaSenha('');
-    setconfirmacaoSenha('');
+    setEmailAtual('');
+    setSenhaAtual('');
+    setNovoEmail('');
+    setConfirmacaoEmail('');
+  };
+
+  // PopUp de Confirmação
+  const showAlert = () => {
+    Alert.alert(
+      "E-mail alterado com sucesso!",
+      "O novo e-mail foi salvo, utilize ele em seu próximo login!",
+      [
+        {
+          text: "OK",
+        },
+      ],
+      { cancelable: false } // Impede que o Pop-up seja fechado tocando fora dele
+    );
   };
 
   return (
@@ -105,30 +121,35 @@ export default function AlterarSenha({ navigation }) {
       </View>
 
       <View style={styles.contentContainer}>
-        <Text style={styles.title}>Redefinição de Senha</Text>
+        <Text style={styles.title}>Alteração de E-mail</Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Insira o e-mail atual"
+          value={emailAtual}
+          onChangeText={setEmailAtual}
+        />
 
         <TextInput
           style={styles.input}
           placeholder="Insira a senha atual"
           secureTextEntry
           value={senhaAtual}
-          onChangeText={setsenhaAtual}
+          onChangeText={setSenhaAtual}
         />
-        
+
         <TextInput
           style={styles.input}
-          placeholder="Insira a nova senha"
-          secureTextEntry
-          value={novaSenha}
-          onChangeText={setnovaSenha}
+          placeholder="Insira o novo e-mail"
+          value={novoEmail}
+          onChangeText={setNovoEmail}
         />
-        
+
         <TextInput
           style={styles.input}
-          placeholder="Confirme a nova senha"
-          secureTextEntry
-          value={confirmacaoSenha}
-          onChangeText={setconfirmacaoSenha}
+          placeholder="Confirme o novo e-mail"
+          value={confirmacaoEmail}
+          onChangeText={setConfirmacaoEmail}
         />
 
         <Text style={styles.caution}>Atenção!</Text>
@@ -137,8 +158,8 @@ export default function AlterarSenha({ navigation }) {
           {textoSeguranca}
         </Text>
 
-        <TouchableOpacity style={styles.saveButton} onPress={handleSalvarSenha}>
-          <Text style={styles.saveButtonText}>Salvar Nova Senha</Text>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSalvarEmail}>
+          <Text style={styles.saveButtonText}>Salvar Novo E-mail</Text>
         </TouchableOpacity>
         
         <TouchableOpacity onPress={handleLimparCampos}>

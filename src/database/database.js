@@ -210,6 +210,7 @@ export const obterCpf = async (email) => {
 export const obterSenha = async (email) => {
     const db = inicializaco.getConnection();
 
+    console.log(email);
     const firstRow = await db.getFirstAsync(`SELECT * FROM login WHERE tbl_Usuario_email = ? `, email);
 
     if (firstRow.tbl_Usuario_email === email) {
@@ -243,6 +244,38 @@ export const redefinirSenha = async (email, senha) => {
       }else{
         return false;
       }
+    } catch (error) {
+       console.error('Erro ao inserir dados:', error);
+    }       
+};
+
+export const redefinirEmail = async (email, novoEmail, senha) => {
+    const db = inicializaco.getConnection();
+
+    try {
+
+        const cpf = await obterCpf(email);
+        
+
+        const result = await db.runAsync(`UPDATE login SET tbl_Usuario_email = ? WHERE tbl_Usuario_email = ? and senha = ?`, novoEmail, email, senha);
+        
+        if(result.changes > 0){
+            console.log('Login alterado com sucesso!!');
+
+            const id = await obterIdUsuario(cpf);
+
+            console.log(id);
+
+            const resultUsuario = await db.runAsync(`UPDATE tbl_Usuario SET email = ? WHERE id = ?`, novoEmail, id);        
+        
+            if(resultUsuario.changes > 0){
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            console.log('Login não foi alterado!!');
+        }
     } catch (error) {
        console.error('Erro ao inserir dados:', error);
     }       
