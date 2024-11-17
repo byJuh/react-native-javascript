@@ -1,8 +1,14 @@
 import React, {useState} from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+<<<<<<< HEAD
 import { login, redefinirSenha } from '../../database/database';
 import { Modal } from 'react-native';
+=======
+import { login, obterDadosDoUsuario, obterIdUsuario, redefinirSenha, obterCpf } from '../../database/database';
+import { Modal } from 'react-native';
+import { Storage } from "expo-sqlite/kv-store";
+>>>>>>> 23d1e68 (arrumandoBD)
 
 const validator = require('validator')
 
@@ -47,9 +53,19 @@ export default function Login(){
           console.log("Tentando redefinir a senha para:", email, novaSenha);
   
           
+<<<<<<< HEAD
           redefinirSenha(email, novaSenha);
           alert("Senha redefinida com sucesso!");
 
+=======
+          const result = await redefinirSenha(email, novaSenha);
+
+          if(result){
+            alert("Senha redefinida com sucesso!");
+          }else{
+            alert("Erro ao redefinir. Tente mais tarde!");
+          }
+>>>>>>> 23d1e68 (arrumandoBD)
           
         } catch (error) {
           console.error("Erro ao redefinir senha:", error.message);
@@ -68,6 +84,7 @@ export default function Login(){
 
     if(validator.isEmail(email)){
       try {
+<<<<<<< HEAD
           login(email, senha);
 
           setEmail("");
@@ -77,6 +94,38 @@ export default function Login(){
       } catch (error) {
           console.error("Erro ao Logar:", error.message);
           alert("Erro ao se Logar. Por favor, tente novamente. Erro: " + error.message);
+=======
+          const entrar = await login(email, senha);
+
+          console.log(entrar);
+
+          if(entrar){
+            setEmail("");
+            setSenha("");
+
+            const cpf = await obterCpf(email);
+            console.log('cpf: ', cpf);
+
+            const id_usuario = await obterIdUsuario(cpf);
+            console.log('id: ', id_usuario);
+
+            const result = await obterDadosDoUsuario(cpf, id_usuario);
+
+            console.log(result);
+
+            if(result){
+              navigation.navigate('Tabs', { screen: 'Principal' });
+            }else{
+              alert('Erro ao pegar dados!!');
+            }
+
+            
+          }
+
+          
+      } catch (error) {
+          alert("Senha ou email incorretos!!");
+>>>>>>> 23d1e68 (arrumandoBD)
       }
 
     }else{

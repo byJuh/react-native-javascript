@@ -3,7 +3,10 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput } from 'reac
 import { useNavigation } from '@react-navigation/native';
 import { inserindoDadosFicha, obterIdUsuario } from '../../database/database';
 import { Picker } from '@react-native-picker/picker';
+<<<<<<< HEAD
 import AsyncStorage from '@react-native-async-storage/async-storage';
+=======
+>>>>>>> 23d1e68 (arrumandoBD)
 
 export default function Cadastro_endereco({ route }) {
 
@@ -51,6 +54,7 @@ export default function Cadastro_endereco({ route }) {
     setIsLoading(true);
 
     try {
+<<<<<<< HEAD
       console.log("Enviando dados para o servidor...");
 
       await AsyncStorage.setItem('tipoSanguineo', tipoSanguineo);
@@ -63,6 +67,14 @@ export default function Cadastro_endereco({ route }) {
       const id_usuario = obterIdUsuario(cpf);
       
       inserindoDadosFicha(tipoSanguineo, doencas, doador, gravida, tempo, id_usuario);
+=======
+
+      const id_usuario = await obterIdUsuario(cpf);
+
+      console.log("id: ", id_usuario);
+      
+      await inserindoDadosFicha(tipoSanguineo, doencas, doador, gravida, tempo, id_usuario);
+>>>>>>> 23d1e68 (arrumandoBD)
       
       console.log("Cadastro realizado com sucesso!");
       console.log(tipoSanguineo, doencas, doador, gravida, tempo, id_usuario);
@@ -75,7 +87,11 @@ export default function Cadastro_endereco({ route }) {
       setGravida("");
       setTempo("");
 
+<<<<<<< HEAD
       navigation.navigate('Cadastro', { cpf });
+=======
+      navigation.navigate('Cadastro', { cpf, id_usuario });
+>>>>>>> 23d1e68 (arrumandoBD)
 
     } catch (error) {
       console.error("Erro ao cadastrar:", error);

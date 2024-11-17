@@ -11,6 +11,10 @@ import Tabs from '../Tabs'; // Importando o componente Tabs para a navegação d
 import Receituario from '../pages/Receituario';
 import DadosPerfil from '../pages/DadoPerfil';
 import TermoPrivacidade from '../pages/TermoPrivacidade'
+<<<<<<< HEAD
+=======
+import AlterarSenha from '../pages/AlterarDados/alterarSenha'
+>>>>>>> 23d1e68 (arrumandoBD)
 
 const Stack = createNativeStackNavigator();
 
@@ -63,6 +67,14 @@ export default function Rotas() {
                 options={{ headerShown: false }} 
             />
             <Stack.Screen
+<<<<<<< HEAD
+=======
+                name='AlterarSenha' 
+                component={AlterarSenha} 
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+>>>>>>> 23d1e68 (arrumandoBD)
                 name='Tabs' 
                 component={Tabs} 
                 options={{ headerShown: false }} 
