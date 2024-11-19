@@ -30,7 +30,7 @@ export default function Cadastro({ route }){
   const onChangeConfirmarSenhaHandler = (senha) => setConfirmarSenha (senha);
 
   function validatePhone (phone) {
-    var regex = new RegExp('^((1[1-9])|([2-9][0-9]))((3[0-9]{3}[0-9]{4})|(9[0-9]{3}[0-9]{5}))$'); 
+    var regex = new RegExp('^\((?:[14689][1-9]|2[12478]|3[1234578]|5[1345]|7[134579])\) (?:[2-8]|9[0-9])[0-9]{3}\-[0-9]{4}$'); 
     return regex.test(phone);
   }
 
@@ -46,7 +46,7 @@ export default function Cadastro({ route }){
     }
 
     if(validatePhone(telefone)){
-      alert("Númeor inválido!!");
+      alert("Númmero inválido!!");
       return;
     }
 
@@ -84,13 +84,11 @@ export default function Cadastro({ route }){
           navigation.navigate('Login', {cpf, id_usuario});
         }else{
           alert('Email já está cadastrado!');
+          setIsLoading(false);
           return;
         }
-        
-        
   
       } catch (error) {
-        console.error("Erro ao cadastrar:", error);
         alert("Erro ao cadastrar. Por favor, tente novamente.");
         setIsLoading(false);
       }
@@ -173,8 +171,8 @@ export default function Cadastro({ route }){
 }
 
 const styles = StyleSheet.create({
-  container:{
-    flex: 1, //pega toda a tela
+  container: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -217,5 +215,9 @@ const styles = StyleSheet.create({
     color: '#989898',
     textDecorationLine: 'underline',
     marginLeft: 5
+  },
+  textoCadastro: {
+    fontSize: 32,
+    marginBottom: 10,
   },
 });
