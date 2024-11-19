@@ -39,7 +39,7 @@ export default function Config(){
                 <Text style={styles.texto}> Notificações </Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.areaSair}>
+            <TouchableOpacity style={styles.areaSair} onPress={() => navigation.navigate('ExcluirConta')}>
                 <FontAwesomeIcon icon={faXmark} size={20} style={styles.iconSair}/>
                 <Text style={styles.textoSair}> Excluir a Conta </Text>
             </TouchableOpacity>

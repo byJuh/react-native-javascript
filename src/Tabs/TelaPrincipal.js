@@ -3,14 +3,12 @@ import React, {useState, useEffect} from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, ScrollView} from 'react-native';
 import 'moment/locale/pt-br';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faMap } from '@fortawesome/free-regular-svg-icons';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { Modal, FlatList } from 'react-native';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-import { Storage } from "expo-sqlite/kv-store";
 
 let currentDate = moment().format('YYYY-MM-DD');
 let currentDateCursive = moment().locale('pt-br').format('DD [de] MMMM [de] YYYY');
@@ -29,13 +27,13 @@ export default function TelaPrincipal(){
     useFocusEffect(
         React.useCallback(() => {
             const fetchNotes = async () => {
-                const email = await Storage.getItem('email'); 
+                const email = await AsyncStorage.getItem('email'); 
 
                 setNotes(await loadNotes(email));
               };
             // Atualiza a lista de PDFs sempre que a tela for exibida
             const fetchPdfList = async () => {
-                const email = await Storage.getItem('email'); 
+                const email = await AsyncStorage.getItem('email'); 
                 
                 const storedPdfList = await AsyncStorage.getItem(`pdfList-${email}`);
                 if (storedPdfList) {
@@ -78,7 +76,7 @@ export default function TelaPrincipal(){
     }
     
     const saveNote = async () => {
-        const email = await Storage.getItem('email');
+        const email = await AsyncStorage.getItem('email');
 
         const storedNotes = await AsyncStorage.getItem(`user_notes_${email}`);
         const note = storedNotes ? JSON.parse(storedNotes) : {};

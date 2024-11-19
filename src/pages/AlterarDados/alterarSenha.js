@@ -2,8 +2,8 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { Storage } from "expo-sqlite/kv-store";
 import { redefinirSenha, obterSenha } from '../../database/database';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function AlterarSenha({ navigation }) {
   const textoSeguranca = `Você está prestes a alterar seus dados de login. Verifique com atenção antes de confirmar para garantir que todas as informações estejam corretas. Alterações incorretas podem afetar seu acesso e funcionalidades do aplicativo.`
@@ -17,7 +17,7 @@ export default function AlterarSenha({ navigation }) {
     const adicionarEmail = async () => {
         try {
             
-            const email = await Storage.getItem('email') || '';
+            const email = await AsyncStorage.getItem('email') || '';
             
             setEmail(email);
 

@@ -1,5 +1,5 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { inicializaco } from "./inicializacao";
-import { Storage } from "expo-sqlite/kv-store";
 
 export const criandoTabelas = async () => {
     const db = inicializaco.getConnection();
@@ -73,7 +73,7 @@ export const criar = async (db) => {
         CREATE TABLE IF NOT EXISTS tbl_Usuario (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nomeCompleto TEXT NOT NULL,
-            cpf TEXT NOT NULL UNIQUE,
+            cpf TEXT NOT NULL,
             telefone TEXT,
             email TEXT,
             tbl_Usuario_Completo_cpf TEXT NOT NULL,
@@ -161,21 +161,17 @@ export const inserindoDadosFicha = async (tipo_sanguineo, doencas_cronicas, doad
 export const inserindoDadosCadastro = async (cpf, email, senha, telefone) =>{
     const db = inicializaco.getConnection();
 
-    console.log(cpf);
-    console.log(email);
-    console.log(senha);
-    console.log(telefone);
-
     try {
 
         const resultUsuarioCompleto = await db.runAsync(`UPDATE tbl_Usuario_Completo SET telefone_residencial = ? WHERE cpf = ?`, telefone, cpf);
-        console.log(`Linhas afetadas na tbl_Usuario_Completo: ${resultUsuarioCompleto.changes}`);
+        
+        if(resultUsuarioCompleto.changes > 0){
+            const resultUsuario = await db.runAsync(`UPDATE tbl_Usuario SET telefone = ?, email = ? WHERE cpf = ?`, telefone, email, cpf);
 
-        const resultUsuario = await db.runAsync(`UPDATE tbl_Usuario SET telefone = ?, email = ? WHERE cpf = ?`, telefone, email, cpf);
-        console.log(`Linhas afetadas na tbl_Usuario: ${resultUsuario.changes}`);
-
-        await db.runAsync(`INSERT INTO login VALUES (?, ?)`, senha, email);
-
+            if(resultUsuario.changes > 0){
+                const inserir = await db.runAsync(`INSERT INTO login VALUES (?, ?)`, senha, email);
+            }
+        }
 
     } catch (error) {
         console.error('Erro ao inserir dados:', error);
@@ -229,6 +225,64 @@ export const login = async (email, senha) => {
         return true;  // Retorna o id encontrado
     } else {
         return false;  // Retorna null caso o CPF não seja encontrado
+    }
+}
+
+export const deletarUsuario = async (id) => {
+    const db = inicializaco.getConnection();
+
+    try {
+        // Inicia uma transação
+        await db.runAsync('BEGIN TRANSACTION');
+
+        // Exclui registros dependentes
+        await db.runAsync(`DELETE FROM tbl_Ficha_Medica WHERE id_usuario = ?`, [id]);
+        await db.runAsync(
+            `DELETE FROM login 
+             WHERE tbl_Usuario_email = (SELECT email FROM tbl_Usuario WHERE id = ?)`,
+            [id]
+        );
+        await db.runAsync(
+            `DELETE FROM tbl_Usuario_Completo 
+             WHERE cpf = (SELECT cpf FROM tbl_Usuario WHERE id = ?)`,
+            [id]
+        );
+        await db.runAsync(
+            `DELETE FROM tbl_Endereco 
+             WHERE id_endereco = (
+                 SELECT tbl_Endereco_id_endereco 
+                 FROM tbl_Usuario_Completo 
+                 WHERE cpf = (SELECT cpf FROM tbl_Usuario WHERE id = ?)
+             )`,
+            [id]
+        );
+
+        // Exclui o usuário principal
+        await db.runAsync(`DELETE FROM tbl_Usuario WHERE id = ?`, [id]);
+
+        // Confirma a transação
+        await db.runAsync('COMMIT');
+        console.log('Usuário deletado com sucesso!');
+
+        return true;
+    } catch (error) {
+        // Em caso de erro, desfaz a transação
+        await db.runAsync('ROLLBACK');
+        console.error('Erro ao deletar usuário:', error.message);
+        throw error; // Repassa o erro para o chamador
+    }
+};
+
+
+export const verificarSeUsuarioExiste = async (email) => {
+    const db = inicializaco.getConnection();
+
+    const firstRow = await db.getFirstAsync(`SELECT tbl_Usuario_email FROM login WHERE tbl_Usuario_email = ?`, email);
+    
+    if (firstRow && firstRow.tbl_Usuario_email) {
+        return true;  // Usuário encontrado
+    } else {
+        return false;  // Usuário não encontrado
     }
 }
 
@@ -292,10 +346,10 @@ export const obterDadosDoUsuario = async (cpf, id) => {
         console.log(firstRow);
 
         if(firstRow.cpf === cpf){
-            await Storage.setItem('nome', firstRow.nomeCompleto);
-            await Storage.setItem('cpf', firstRow.cpf);
-            await Storage.setItem('telefone', firstRow.telefone);
-            await Storage.setItem('email', firstRow.email);
+            await AsyncStorage.setItem('nome', firstRow.nomeCompleto);
+            await AsyncStorage.setItem('cpf', firstRow.cpf);
+            await AsyncStorage.setItem('telefone', firstRow.telefone);
+            await AsyncStorage.setItem('email', firstRow.email);
         }else{
             console.log('Erro 1 ao pegar dados!!');
             certo =  false;
@@ -306,11 +360,11 @@ export const obterDadosDoUsuario = async (cpf, id) => {
         console.log(secondRow);
 
         if(secondRow.cpf === cpf){
-            await Storage.setItem('rg', secondRow.rg);
-            await Storage.setItem('sexo_biologico', secondRow.sexo_biologico);
-            await Storage.setItem('data_nascimento', secondRow.data_nascimento);
-            await Storage.setItem('cep', secondRow.cep);
-            await Storage.setItem('estado_civil', secondRow.estado_civil);
+            await AsyncStorage.setItem('rg', secondRow.rg);
+            await AsyncStorage.setItem('sexo_biologico', secondRow.sexo_biologico);
+            await AsyncStorage.setItem('data_nascimento', secondRow.data_nascimento);
+            await AsyncStorage.setItem('cep', secondRow.cep);
+            await AsyncStorage.setItem('estado_civil', secondRow.estado_civil);
         }else{
             console.log('Erro 2 ao pegar dados!!');
             certo =  false;
@@ -321,12 +375,12 @@ export const obterDadosDoUsuario = async (cpf, id) => {
         console.log(thirdRow);
 
         if(thirdRow.id_usuario === id){
-            await Storage.setItem('idade', thirdRow.idade);
-            await Storage.setItem('tipo_sanguineo', thirdRow.tipo_sanguineo);
-            await Storage.setItem('doencas_cronicas', thirdRow.doencas_cronicas);
-            await Storage.setItem('doador', thirdRow.doador);
-            await Storage.setItem('gravida', thirdRow.gravida);
-            await Storage.setItem('data_gravidez', thirdRow.data_gravidez);
+            await AsyncStorage.setItem('idade', JSON.stringify(thirdRow.idade));
+            await AsyncStorage.setItem('tipo_sanguineo', thirdRow.tipo_sanguineo);
+            await AsyncStorage.setItem('doencas_cronicas', thirdRow.doencas_cronicas);
+            await AsyncStorage.setItem('doador', thirdRow.doador);
+            await AsyncStorage.setItem('gravida', thirdRow.gravida);
+            await AsyncStorage.setItem('data_gravidez', thirdRow.data_gravidez);
         }else{
             console.log('Erro 3 ao pegar dados!!');
             certo =  false;
@@ -338,3 +392,240 @@ export const obterDadosDoUsuario = async (cpf, id) => {
        console.error('Erro ao inserir dados:', error);
     }       
 }
+
+
+export const alterarDadosGerais = async (id, nome, dataNascimento, genero, estadoCivil, cpf, rg, telefone, idade) => {
+    const db = inicializaco.getConnection();
+    let sucesso = true;
+
+    try {
+        // Atualizar Nome
+        if (nome) {
+            const result = await db.runAsync(`UPDATE tbl_Usuario SET nomeCompleto = ? WHERE id = ?`, [nome, id]);
+            if (result.changes > 0) {
+                console.log('Nome modificado!');
+                await AsyncStorage.setItem('nome', nome);
+            } else {
+                console.log('Não foi possível modificar o nome!');
+                sucesso = false;
+            }
+        }
+
+        // Atualizar Data de Nascimento e Idade
+        if (dataNascimento) {
+            const email = await AsyncStorage.getItem('email');
+            const cpfAtual = await obterCpf(email);
+
+            const result = await db.runAsync(
+                `UPDATE tbl_Usuario_Completo SET data_nascimento = ? WHERE cpf = ?`,
+                [dataNascimento, cpfAtual]
+            );
+            if (result.changes > 0) {
+                console.log('Data de nascimento modificada!');
+                await AsyncStorage.setItem('data_nascimento', dataNascimento);
+
+                if (idade) {
+                    const resultIdade = await db.runAsync(
+                        `UPDATE tbl_Ficha_Medica SET idade = ? WHERE id_usuario = ?`,
+                        [idade, id]
+                    );
+                    if (resultIdade.changes > 0) {
+                        console.log('Idade modificada!');
+                        await AsyncStorage.setItem('idade', JSON.stringify(idade));
+                    } else {
+                        console.log('Não foi possível modificar a idade!');
+                        sucesso = false;
+                    }
+                }
+            } else {
+                console.log('Não foi possível modificar a data de nascimento!');
+                sucesso = false;
+            }
+        }
+
+        // Atualizar Gênero
+        if (genero) {
+            const resultGenero = await db.runAsync(
+                `UPDATE tbl_Ficha_Medica SET sexo_biologico = ? WHERE id_usuario = ?`,
+                [genero, id]
+            );
+            if (resultGenero.changes > 0) {
+                console.log('Gênero modificado!');
+                await AsyncStorage.setItem('sexo_biologico', genero);
+
+                const cpfAtual = await obterCpf(await AsyncStorage.getItem('email'));
+                await db.runAsync(
+                    `UPDATE tbl_Usuario_Completo SET sexo_biologico = ? WHERE cpf = ?`,
+                    [genero, cpfAtual]
+                );
+            } else {
+                console.log('Não foi possível modificar o gênero!');
+                sucesso = false;
+            }
+        }
+
+        // Atualizar Estado Civil
+        if (estadoCivil) {
+            const cpfAtual = await obterCpf(await AsyncStorage.getItem('email'));
+            const resultEstadoCivil = await db.runAsync(
+                `UPDATE tbl_Usuario_Completo SET estado_civil = ? WHERE cpf = ?`,
+                [estadoCivil, cpfAtual]
+            );
+            if (resultEstadoCivil.changes > 0) {
+                console.log('Estado civil modificado!');
+                await AsyncStorage.setItem('estado_civil', estadoCivil);
+            } else {
+                console.log('Não foi possível modificar o estado civil!');
+                sucesso = false;
+            }
+        }
+
+        // Atualizar RG
+        if (rg) {
+            const cpfAtual = await obterCpf(await AsyncStorage.getItem('email'));
+            const resultRg = await db.runAsync(
+                `UPDATE tbl_Usuario_Completo SET rg = ? WHERE cpf = ?`,
+                [rg, cpfAtual]
+            );
+            if (resultRg.changes > 0) {
+                console.log('RG modificado!');
+                await AsyncStorage.setItem('rg', rg);
+            } else {
+                console.log('Não foi possível modificar o RG!');
+                sucesso = false;
+            }
+        }
+
+        // Atualizar Telefone
+        if (telefone) {
+            const cpfAtual = await obterCpf(await AsyncStorage.getItem('email'));
+            const resultTelefone = await db.runAsync(
+                `UPDATE tbl_Usuario_Completo SET telefone_residencial = ? WHERE cpf = ?`,
+                [telefone, cpfAtual]
+            );
+            if (resultTelefone.changes > 0) {
+                console.log('Telefone modificado!');
+                await db.runAsync(`UPDATE tbl_Usuario SET telefone = ? WHERE id = ?`, [telefone, id]);
+                await AsyncStorage.setItem('telefone', telefone);
+            } else {
+                console.log('Não foi possível modificar o telefone!');
+                sucesso = false;
+            }
+        }
+
+        // Atualizar CPF
+        if (cpf) {
+            const cpfAtual = await obterCpf(await AsyncStorage.getItem('email'));
+            const resultCpf = await db.runAsync(
+                `UPDATE tbl_Usuario_Completo SET cpf = ? WHERE cpf = ?`,
+                [cpf, cpfAtual]
+            );
+            if (resultCpf.changes > 0) {
+                console.log('CPF modificado!');
+                await db.runAsync(`UPDATE tbl_Usuario SET cpf = ? WHERE id = ?`, [cpf, id]);
+                await AsyncStorage.setItem('cpf', cpf);
+            } else {
+                console.log('Não foi possível modificar o CPF!');
+                sucesso = false;
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao atualizar os dados:', error);
+        sucesso = false;
+    }
+
+    return sucesso;
+};
+
+
+export const alterarDadosMedicos = async (tipoSanguineo, doencasCronicas, doador, gravidez, tempoGravidez, id) => {
+    const db = inicializaco.getConnection();
+    let sucesso = true; // Inicializa como verdadeiro
+
+    try {
+        if (tipoSanguineo !== "") {
+            const result = await db.runAsync(
+                `UPDATE tbl_Ficha_Medica SET tipo_sanguineo = ? WHERE id_usuario = ?`,
+                tipoSanguineo,
+                id
+            );
+
+            if (result.changes > 0) {
+                console.log("Tipo sanguíneo atualizado!");
+                await AsyncStorage.setItem("tipo_sanguineo", tipoSanguineo);
+            } else {
+                console.log("Falha ao atualizar o tipo sanguíneo.");
+                sucesso = false;
+            }
+        }
+
+        if (doencasCronicas !== "") {
+            const result = await db.runAsync(
+                `UPDATE tbl_Ficha_Medica SET doencas_cronicas = ? WHERE id_usuario = ?`,
+                doencasCronicas,
+                id
+            );
+
+            if (result.changes > 0) {
+                console.log("Doenças crônicas atualizadas!");
+                await AsyncStorage.setItem("doencas_cronicas", doencasCronicas);
+            } else {
+                console.log("Falha ao atualizar doenças crônicas.");
+                sucesso = false;
+            }
+        }
+
+        if (doador !== "") {
+            const result = await db.runAsync(
+                `UPDATE tbl_Ficha_Medica SET doador = ? WHERE id_usuario = ?`,
+                doador,
+                id
+            );
+
+            if (result.changes > 0) {
+                console.log("Doador atualizado!");
+                await AsyncStorage.setItem("doador", doador);
+            } else {
+                console.log("Falha ao atualizar doador.");
+                sucesso = false;
+            }
+        }
+
+        if (gravidez !== "") {
+            const result = await db.runAsync(
+                `UPDATE tbl_Ficha_Medica SET gravida = ? WHERE id_usuario = ?`,
+                gravidez,
+                id
+            );
+
+            if (result.changes > 0) {
+                console.log("Gravidez atualizada!");
+                await AsyncStorage.setItem("gravida", gravidez);
+            } else {
+                console.log("Falha ao atualizar gravidez.");
+                sucesso = false;
+            }
+        }
+
+        if (tempoGravidez !== "") {
+            const result = await db.runAsync(
+                `UPDATE tbl_Ficha_Medica SET data_gravidez = ? WHERE id_usuario = ?`,
+                tempoGravidez,
+                id
+            );
+
+            if (result.changes > 0) {
+                console.log("Tempo de gravidez atualizado!");
+                await AsyncStorage.setItem("data_gravidez", tempoGravidez);
+            } else {
+                console.log("Falha ao atualizar tempo de gravidez.");
+                sucesso = false;
+            }
+        }
+    } catch (error) {
+        console.error("Erro ao atualizar os dados médicos:", error);
+        sucesso = false; // Se algum erro ocorrer, indica falha
+    }
+
+    return sucesso;
+};

@@ -2,8 +2,8 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { Storage } from "expo-sqlite/kv-store";
 import { obterSenha, redefinirEmail } from '../../database/database';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function AlterarEmail({ navigation }) {
   const textoSeguranca = `Você está prestes a alterar seus dados de login. Verifique com atenção antes de confirmar para garantir que todas as informações estejam corretas. Alterações incorretas podem afetar seu acesso e funcionalidades do aplicativo.`;
@@ -18,7 +18,7 @@ export default function AlterarEmail({ navigation }) {
     const adicionarEmail = async () => {
         try {
             
-            const email = await Storage.getItem('email') || '';
+            const email = await AsyncStorage.getItem('email') || '';
             
             setEmail(email);
 
@@ -75,7 +75,7 @@ export default function AlterarEmail({ navigation }) {
         const result = await redefinirEmail(email, novoEmail, senha);
         
         if(result){
-            await Storage.setItem('email', novoEmail);
+            await AsyncStorage.setItem('email', novoEmail);
 
             showAlert();
             navigation.navigate('Tabs', { screen: 'TermoPrivacidade' });

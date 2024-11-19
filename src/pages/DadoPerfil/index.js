@@ -1,11 +1,9 @@
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
-import { Storage } from "expo-sqlite/kv-store";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfileScreen()  {
 
@@ -30,19 +28,19 @@ export default function ProfileScreen()  {
     useEffect (() => {
       const adicionarDados = async () => {
         try {
-            const nome = await Storage.getItem('nome') || '';
-            const data = await Storage.getItem('data_nascimento') || '';
-            const cpf = await Storage.getItem('cpf') || '';
-            const rg = await Storage.getItem('rg') || '';
-            const contato = await Storage.getItem('telefone') || '';
-            const email = await Storage.getItem('email') || '';
-            const tipoSanguineo = await Storage.getItem('tipo_sanguineo') || '';
-            const doador = await Storage.getItem('doador') || '';
-            const idade = await Storage.getItem('idade') || '';
-            const estadoCivil = await Storage.getItem('estado_civil') || '';
-            const genero = await Storage.getItem('sexo_biologico') || '';
-            const gravidez = await Storage.getItem('gravida') || '';
-            const doencasCronicas = await Storage.getItem('doencas_cronicas') || '';
+            const nome = await AsyncStorage.getItem('nome') || '';
+            const data = await AsyncStorage.getItem('data_nascimento') || '';
+            const cpf = await AsyncStorage.getItem('cpf') || '';
+            const rg = await AsyncStorage.getItem('rg') || '';
+            const contato = await AsyncStorage.getItem('telefone') || '';
+            const email = await AsyncStorage.getItem('email') || '';
+            const tipoSanguineo = await AsyncStorage.getItem('tipo_sanguineo') || '';
+            const doador = await AsyncStorage.getItem('doador') || '';
+            const idade = await AsyncStorage.getItem('idade') || '';
+            const estadoCivil = await AsyncStorage.getItem('estado_civil') || '';
+            const genero = await AsyncStorage.getItem('sexo_biologico') || '';
+            const gravidez = await AsyncStorage.getItem('gravida') || '';
+            const doencasCronicas = await AsyncStorage.getItem('doencas_cronicas') || '';
     
             // Setando os estados
             setNomeCompleto(nome);
@@ -60,7 +58,7 @@ export default function ProfileScreen()  {
             setDoencasCronicas(doencasCronicas);
 
             if(gravidez === 'sim'){
-              const tempo = await Storage.getItem('data_gravidez');
+              const tempo = await AsyncStorage.getItem('data_gravidez');
               setTempoGravidez(tempo);
             }
     

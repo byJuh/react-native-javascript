@@ -13,6 +13,8 @@ import DadosPerfil from '../pages/DadoPerfil';
 import TermoPrivacidade from '../pages/TermoPrivacidade'
 import AlterarSenha from '../pages/AlterarDados/alterarSenha'
 import AlterarEmail from '../pages/AlterarDados/alterarEmail'
+import AlterarDados from '../pages/AlterarDados/alterarDados'
+import ExcluirConta from "../pages/ExcluirConta";
 
 const Stack = createNativeStackNavigator();
 
@@ -72,6 +74,16 @@ export default function Rotas() {
             <Stack.Screen
                 name='AlterarEmail' 
                 component={AlterarEmail} 
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name='AlterarDados' 
+                component={AlterarDados} 
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name='ExcluirConta' 
+                component={ExcluirConta} 
                 options={{ headerShown: false }}
             />
             <Stack.Screen

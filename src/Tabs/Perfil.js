@@ -7,10 +7,9 @@ import { faClipboard } from '@fortawesome/free-regular-svg-icons';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
-import { Storage } from "expo-sqlite/kv-store";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Perfil(){
 
@@ -24,16 +23,16 @@ export default function Perfil(){
     useEffect(() => {
         const getDados = async () =>{
             try{
-                const nomeCompleto = await Storage.getItem("nome");
+                const nomeCompleto = await AsyncStorage.getItem("nome");
                 setNome(nomeCompleto);
 
-                const dataDeNascimento = await Storage.getItem("data_nascimento");
+                const dataDeNascimento = await AsyncStorage.getItem("data_nascimento");
                 setData(dataDeNascimento);
 
-                const genero = await Storage.getItem("sexo_biologico");
+                const genero = await AsyncStorage.getItem("sexo_biologico");
                 setGenero(genero);
 
-                const idade = await Storage.getItem("idade");
+                const idade = await AsyncStorage.getItem("idade");
                 setIdade(idade);
             } catch(error){
                 console.log("Nao foi possivel pegar os dados!!");
@@ -46,7 +45,7 @@ export default function Perfil(){
 
     const logOut = async () => {
         try{
-            await Storage.removeItem('authToken');
+            await AsyncStorage.removeItem('authToken');
                 navigation.reset({
                     routes: [{ name: 'TelaInicial' }],
                 });

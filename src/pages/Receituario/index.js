@@ -8,7 +8,6 @@ import * as DocumentPicker from 'expo-document-picker';
 import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
-import { Storage } from "expo-sqlite/kv-store";
 
 export default function Receituario() {
     const [pdfList, setPdfList] = useState([]);
@@ -17,7 +16,7 @@ export default function Receituario() {
 
     useEffect(() => {
         const loadPdfList = async () => {
-            const email = await Storage.getItem('email'); 
+            const email = await AsyncStorage.getItem('email'); 
 
             const storedPdfList = await AsyncStorage.getItem(`pdfList-${email}`);
             
@@ -42,7 +41,7 @@ export default function Receituario() {
                 const pdf = result.assets[0]; // Acessa o primeiro arquivo selecionado
                 const fileUri = pdf.uri; // URI do arquivo
                 
-                const email = await Storage.getItem('email');
+                const email = await AsyncStorage.getItem('email');
                 // Adiciona o arquivo à lista
                 const updatedPdfList = [...pdfList, { uri: fileUri, name: pdf.name }];
                 

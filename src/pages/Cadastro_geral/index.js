@@ -5,7 +5,6 @@ import moment from 'moment';
 import { useNavigation } from '@react-navigation/native';
 import { inserindoDadosGeral } from '../../database/database';
 import { Picker } from '@react-native-picker/picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { cpf as cpfValidator } from 'cpf-cnpj-validator';
 
 export default function Cadastro_geral() {

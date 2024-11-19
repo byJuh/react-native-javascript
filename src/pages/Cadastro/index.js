@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, useAnimatedValue} from 'react-native';
 import Checkbox from 'expo-checkbox';
 import { useState } from 'react';
-import { inserindoDadosCadastro } from '../../database/database';
+import { inserindoDadosCadastro, verificarSeUsuarioExiste } from '../../database/database';
 import { useNavigation } from '@react-navigation/native';
 
 const validator = require('validator')
@@ -65,20 +65,29 @@ export default function Cadastro({ route }){
           alert("senha tem que ter no minino 6 digitos!!");
           return;
         }
+
+        const result = await verificarSeUsuarioExiste(email);
+
+        if(!result){
+          await inserindoDadosCadastro(cpf, email, senha, telefone);
         
-        await inserindoDadosCadastro(cpf, email, senha, telefone);
+          console.log("Cadastro realizado com sucesso!");
+          console.log(cpf, email, senha, telefone);
+              
+          setIsLoading(false);
+    
+          setTelefone("");
+          setEmail("");
+          setSenha("");
+          setConfirmarSenha("");
+          
+          navigation.navigate('Login', {cpf, id_usuario});
+        }else{
+          alert('Email já está cadastrado!');
+          return;
+        }
         
-        console.log("Cadastro realizado com sucesso!");
-        console.log(cpf, email, senha, telefone);
-            
-        setIsLoading(false);
-  
-        setTelefone("");
-        setEmail("");
-        setSenha("");
-        setConfirmarSenha("");
         
-        navigation.navigate('Login', {cpf, id_usuario});
   
       } catch (error) {
         console.error("Erro ao cadastrar:", error);

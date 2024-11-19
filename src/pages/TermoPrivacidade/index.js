@@ -52,7 +52,7 @@ export default function PrivacyScreen() {
             <Icon name="chevron-right" size={24} color="#333" />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.option}>
+            <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('AlterarDados')}>
             <View>
                 <Text style={styles.optionTitle}>Informações de perfil</Text>
                 <Text style={styles.optionText}>Clique aqui para alterar o perfil</Text>
